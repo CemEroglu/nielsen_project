@@ -1,19 +1,17 @@
 import './App.css';
 import { useState, useEffect } from 'react'
-import * as StoryAPI from './services/StoryAPI'
+import * as Services from './services/HackernewsAPIs'
 import LineChart from './components/LineChart';
 
 const App = () => {
   const [amount, setAmount] = useState(10);
-
-
   const [descendants, setDescendants] = useState([]);
   const [scores, setScores] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    StoryAPI.getSomeElements(10).then(data => {
+    Services.getSomeElements(amount).then(data => {
       setDetails(data)
-
     })
   }, [])
 
@@ -21,25 +19,20 @@ const App = () => {
     let descendantsArray = [];
     let scoresArray = [];
     data.map((item, index) => {
-      StoryAPI.getElementsDetails(item).then(res => {
+      Services.getElementsDetails(item).then(res => {
         descendantsArray.push(res.descendants)
         scoresArray.push(res.score)
         if (index == data.length - 1) {
           setDescendants(descendantsArray)
-          console.log(descendantsArray)
-          console.log(scoresArray)
           setScores(scoresArray)
-          
         }
       })
     })
-
-
-
   }
+
   const whenAmountChange = (event) => {
     setAmount(event.target.value)
-    StoryAPI.getSomeElements(event.target.value).then(data => setDetails(data))
+    Services.getSomeElements(event.target.value).then(data => setDetails(data))
   }
 
   return (
@@ -51,7 +44,7 @@ const App = () => {
         <option>40</option>
         <option>50</option>
       </select>
-      {scores.length > 0 ? (<LineChart descendants={descendants} scores={scores}></LineChart>) : ""}
+      {scores.length > 0 ? (<LineChart title="Score Of Descendants" descendants={descendants} scores={scores}></LineChart>) : ""}
     </div>
   );
 }
