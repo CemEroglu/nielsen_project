@@ -17,8 +17,8 @@ const LineChart = (props) => {
                     ]
                 }
             }
-            height={500}
-            width={750}
+            height={600}
+            width={900}
             options={{
                 responsive: false,
             }}
