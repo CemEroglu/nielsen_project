@@ -21,7 +21,7 @@ const LineChart = (props) => {
             width={900}
             options={{
                 responsive: false,
-            }}
+                }}
         />
     );
 }

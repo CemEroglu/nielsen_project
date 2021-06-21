@@ -22,16 +22,17 @@ const App = () => {
     let scoresArray = [];
     data.map((item, index) => {
       Services.getElementsDetails(item).then(res => {
-        if (res.descendants == "Unknown" || res.score == "Unknown") {
-          return
+        if (res.descendants !== "Unknown" && res.score !== "Unknown") {
+
+          combinedData.push(
+            {
+              "ID": item,
+              "descendant": res.descendants,
+              "score": res.score
+            }
+          )
         }
-        combinedData.push(
-          {
-            "ID": item,
-            "descendant": res.descendants,
-            "score": res.score
-          }
-        )
+
         if (index == data.length - 1) {
           combinedData.sort(function (a, b) {
             return a.descendant - b.descendant;
@@ -65,10 +66,8 @@ const App = () => {
         <option>50</option>
       </select>
       {isLoading ? (<PulseLoader size={40} color="turquoise" loading />)
-        : (scores.length > 0 ? (<LineChart title="Score Of Descendants" descendants={descendants} scores={scores}></LineChart>)
+        : (scores.length > 0 ? (<LineChart title="Score/Descendant" descendants={descendants} scores={scores}></LineChart>)
           : "")}
-
-
     </div>
   );
 }
