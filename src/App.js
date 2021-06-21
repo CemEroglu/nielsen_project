@@ -1,6 +1,6 @@
-import './App.css';
+import './styles/App.css';
 import { useState, useEffect } from 'react'
-import * as Services from './services/HackernewsAPIs'
+import * as StoryService from './services/StoryService'
 import LineChart from './components/LineChart';
 import { PulseLoader } from "react-spinners";
 
@@ -11,19 +11,22 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    Services.getSomeElements(amount).then(data => {
-      setDetails(data)
+    StoryService.getStoryIDs(amount).then(IDs => {
+      setDetails(IDs)
     })
   }, [])
 
-  const setDetails = (data) => {
-    let combinedData = [];
-    let descendantsArray = [];
-    let scoresArray = [];
-    data.map((item, index) => {
-      Services.getElementsDetails(item).then(res => {
-        if (res.descendants !== "Unknown" && res.score !== "Unknown") {
+  const whenAmountChange = (event) => {
+    setIsLoading(true)
+    setAmount(event.target.value)
+    StoryService.getStoryIDs(event.target.value).then(IDs => setDetails(IDs))
+  }
 
+  const setDetails = (IDs) => {
+    let combinedData = [];
+    IDs.map((item, index) => {
+      StoryService.getStoryDetails(item).then(res => {
+        if (res.descendants !== undefined && res.score !== undefined) {
           combinedData.push(
             {
               "ID": item,
@@ -32,29 +35,28 @@ const App = () => {
             }
           )
         }
-
-        if (index == data.length - 1) {
-          combinedData.sort(function (a, b) {
-            return a.descendant - b.descendant;
-          });
-
-          combinedData.map(item => {
-            descendantsArray.push(item.descendant)
-            scoresArray.push(item.score)
-          })
-          setDescendants(descendantsArray)
-          setScores(scoresArray)
-          setIsLoading(false)
+        if (index == IDs.length - 1) {
+          sortAndSetAxis(combinedData)
         }
       })
     })
   }
 
-  const whenAmountChange = (event) => {
-    setIsLoading(true)
-    setAmount(event.target.value)
-    Services.getSomeElements(event.target.value).then(data => setDetails(data))
+  const sortAndSetAxis = (combinedData) => {
+    let descendantsArray = [];
+    let scoresArray = [];
+    combinedData.sort(function (first, second) {
+      return first.descendant - second.descendant;
+    });
+    combinedData.map(item => {
+      descendantsArray.push(item.descendant)
+      scoresArray.push(item.score)
+    })
+    setDescendants(descendantsArray)
+    setScores(scoresArray)
+    setIsLoading(false)
   }
+
 
   return (
     <div className="App">
@@ -66,8 +68,8 @@ const App = () => {
         <option>50</option>
       </select>
       {isLoading ? (<PulseLoader size={40} color="turquoise" loading />)
-        : (scores.length > 0 ? (<LineChart title="Score/Descendant" descendants={descendants} scores={scores}></LineChart>)
-          : "")}
+        : (<LineChart title="Score Descendant Relation" label="Score of Spesific Descendant" descendants={descendants} scores={scores}></LineChart>)
+      }
     </div>
   );
 }

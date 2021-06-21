@@ -8,7 +8,7 @@ const LineChart = (props) => {
                     labels: props.descendants,
                     datasets: [
                         {
-                            label: props.title,
+                            label: props.label,
                             data: props.scores,
                             fill: true,
                             backgroundColor: "rgba(75,192,192,0.2)",
@@ -20,8 +20,14 @@ const LineChart = (props) => {
             height={600}
             width={900}
             options={{
+                plugins: {
+                    title: {
+                        display: true,
+                        text: props.title,
+                    }
+                },
                 responsive: false,
-                }}
+            }}
         />
     );
 }
