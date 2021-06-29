@@ -10,22 +10,14 @@ const App = () => {
   const [scores, setScores] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    StoryService.getStoryIDs(amount).then(IDs => {
-      setDetails(IDs)
-    })
-  }, [])
-
-  const whenAmountChange = (event) => {
-    setIsLoading(true)
-    setAmount(event.target.value)
-    StoryService.getStoryIDs(event.target.value).then(IDs => setDetails(IDs))
-  }
-
+  
   const setDetails = (IDs) => {
     let combinedData = [];
-    IDs.map((item, index) => {
-      StoryService.getStoryDetails(item).then(res => {
+    let promises = IDs.map((item, index) => {
+      console.log("starting with this id:", item)
+      return StoryService.getStoryDetails(item).then(res => {
+
+        console.log("ending with this id:", item)
         if (res.descendants !== undefined && res.score !== undefined) {
           combinedData.push(
             {
@@ -35,11 +27,13 @@ const App = () => {
             }
           )
         }
-        if (index == IDs.length - 1) {
-          sortAndSetAxis(combinedData)
-        }
+        
       })
     })
+    Promise.all(promises).then(()=>{
+      sortAndSetAxis(combinedData)
+    })
+
   }
 
   const sortAndSetAxis = (combinedData) => {
@@ -55,6 +49,18 @@ const App = () => {
     setDescendants(descendantsArray)
     setScores(scoresArray)
     setIsLoading(false)
+  }
+
+  useEffect(() => {
+    StoryService.getStoryIDs(amount).then(IDs => {
+      setDetails(IDs)
+    })
+  }, [amount])
+
+  const whenAmountChange = (event) => {
+    setIsLoading(true)
+    setAmount(event.target.value)
+    //StoryService.getStoryIDs(event.target.value).then(IDs => setDetails(IDs))
   }
 
 
